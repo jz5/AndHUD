@@ -332,8 +332,9 @@ namespace AndroidHUD
 
 					Action actionDismiss = () =>
 					{
-						CurrentDialog.Hide ();
-						CurrentDialog.Dismiss ();
+						CurrentDialog?.Hide ();
+                        if (CurrentDialog?.OwnerActivity != null && !(CurrentDialog.OwnerActivity.IsFinishing))
+                            CurrentDialog.Dismiss ();
 
 						statusText = null;
 						statusObj = null;
