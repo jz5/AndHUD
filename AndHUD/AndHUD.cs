@@ -338,7 +338,8 @@ namespace AndroidHUD
                 {
                     var metrics = new Android.Util.DisplayMetrics();
                     activity.WindowManager.DefaultDisplay.GetMetrics(metrics);
-                    var dialogWidth = (int)(metrics.WidthPixels * 0.5); // 50%
+                    var size = Math.Min(metrics.WidthPixels, metrics.HeightPixels);
+                    var dialogWidth = (int)(size * 0.5); // 50%
 
                     var lp = CurrentDialog.Window.Attributes;
                     lp.Width = dialogWidth;
