@@ -332,7 +332,20 @@ namespace AndroidHUD
 				if (cancelCallback != null)
 					CurrentDialog.CancelEvent += (sender, e) => cancelCallback();
 
-				CurrentDialog.Show ();
+                // fix width
+                var activity = context as Activity;
+                if (activity != null)
+                {
+                    var metrics = new Android.Util.DisplayMetrics();
+                    activity.WindowManager.DefaultDisplay.GetMetrics(metrics);
+                    var dialogWidth = (int)(metrics.WidthPixels * 0.5); // 50%
+
+                    var lp = CurrentDialog.Window.Attributes;
+                    lp.Width = dialogWidth;
+                    CurrentDialog.Window.Attributes = lp;
+                }
+
+                CurrentDialog.Show ();
 
 			}, null);
 		}
