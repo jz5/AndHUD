@@ -219,7 +219,7 @@ namespace AndroidHUD
 						}
 
 						return view;
-					});
+					}, fixWidth: status != null);
 
 					if (timeout.Value > TimeSpan.Zero)
 					{
@@ -308,7 +308,7 @@ namespace AndroidHUD
 
 
 
-		void SetupDialog(Context context, MaskType maskType, Action cancelCallback, Func<Context, Dialog, MaskType, View> customSetup)
+		void SetupDialog(Context context, MaskType maskType, Action cancelCallback, Func<Context, Dialog, MaskType, View> customSetup, bool fixWidth = false)
 		{
 			Application.SynchronizationContext.Send(state => {
 
@@ -324,28 +324,31 @@ namespace AndroidHUD
 
 				CurrentDialog.Window.SetBackgroundDrawable(new Android.Graphics.Drawables.ColorDrawable(Android.Graphics.Color.Transparent));
 
-				var customView = customSetup(context, CurrentDialog, maskType);
+                var customView = customSetup(context, CurrentDialog, maskType);
 
 				CurrentDialog.SetContentView (customView);
 
-				CurrentDialog.SetCancelable (cancelCallback != null);	
-				if (cancelCallback != null)
-					CurrentDialog.CancelEvent += (sender, e) => cancelCallback();
-
                 // fix width
-                var activity = context as Activity;
-                if (activity != null)
+                if (fixWidth)
                 {
-                    var metrics = new Android.Util.DisplayMetrics();
-                    activity.WindowManager.DefaultDisplay.GetMetrics(metrics);
-                    var size = Math.Min(metrics.WidthPixels, metrics.HeightPixels);
-                    var dialogWidth = (int)(size * 0.5); // 50%
+                    var activity = context as Activity;
+                    if (activity != null)
+                    {
+                        var metrics = new Android.Util.DisplayMetrics();
+                        activity.WindowManager.DefaultDisplay.GetMetrics(metrics);
+                        var size = Math.Min(metrics.WidthPixels, metrics.HeightPixels);
+                        var dialogWidth = (int)(size * 0.5); // 50%
 
-                    var lp = CurrentDialog.Window.Attributes;
-                    lp.Width = dialogWidth;
-                    CurrentDialog.Window.Attributes = lp;
+                        var lp = CurrentDialog.Window.Attributes;
+                        lp.Width = dialogWidth;
+                        CurrentDialog.Window.Attributes = lp;
+                    }
                 }
 
+                CurrentDialog.SetCancelable (cancelCallback != null);	
+				if (cancelCallback != null)
+					CurrentDialog.CancelEvent += (sender, e) => cancelCallback();
+               
                 CurrentDialog.Show ();
 
 			}, null);
